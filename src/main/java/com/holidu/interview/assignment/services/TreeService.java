@@ -81,7 +81,7 @@ public class TreeService {
         }
 
         if (StringUtils.hasText(whereParam)) {
-            builder.queryParam("$select", whereParam);
+            builder.queryParam("$where", whereParam);
         }
 
         return builder.build().toUri();

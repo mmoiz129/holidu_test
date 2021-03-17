@@ -6,6 +6,14 @@ public class TreeData {
     private Double x_sp;
     private Double y_sp;
 
+    public TreeData() {}
+
+    public TreeData(String spc_common, Double x_sp, Double y_sp) {
+        this.spc_common = spc_common;
+        this.x_sp = x_sp;
+        this.y_sp = y_sp;
+    }
+
     public String getSpc_common() {
         return spc_common;
     }
