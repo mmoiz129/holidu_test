@@ -19,14 +19,8 @@ public class TreeController {
 
     @GetMapping()
     public ResponseEntity<AggregateTreeData> getTreeAggregatedData(@RequestParam Double x, @RequestParam Double y, @RequestParam Double radius) {
-        long startTime = System.nanoTime();
         AggregateTreeData data = treeService.fetchTrees(x, y, radius);
-        long endTime = System.nanoTime();
-        long timeElapsed = endTime - startTime;
-        System.out.println("Execution time in milliseconds: " + timeElapsed);
-
         return new ResponseEntity<AggregateTreeData>(data, HttpStatus.OK);
     }
-
 
 }

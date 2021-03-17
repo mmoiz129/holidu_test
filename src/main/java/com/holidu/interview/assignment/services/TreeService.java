@@ -7,7 +7,6 @@ import com.holidu.interview.assignment.models.Bounds;
 import com.holidu.interview.assignment.models.TreeData;
 import com.holidu.interview.assignment.utils.Util;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -22,8 +21,8 @@ public class TreeService {
     @Autowired
     private HttpService httpService;
 
-    @Value("${datasource}")
-    private String dataSource;
+    @Autowired
+    private PropertiesService propService;
 
     private final String SELECT_PARAM = "spc_common, x_sp, y_sp";
 
@@ -54,7 +53,7 @@ public class TreeService {
         String whereParam = createWhereParamsForBounds(bounds);
 
         //create URI to fetch data
-        URI uri = createURI(SELECT_PARAM, whereParam);
+        URI uri = createURI(propService.getDatasource(), SELECT_PARAM, whereParam);
 
         //fetch data from API
         TreeData[] treeData = httpService.getRequest(uri, TreeData[].class);
@@ -72,9 +71,9 @@ public class TreeService {
      * @param whereParam
      * @return
      */
-    public URI createURI(String selectParam, String whereParam) {
+    public URI createURI(String baseUrl, String selectParam, String whereParam) {
 
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(dataSource).cloneBuilder();
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(baseUrl).cloneBuilder();
 
         if (StringUtils.hasText(selectParam)) {
             builder.queryParam("$select", selectParam);

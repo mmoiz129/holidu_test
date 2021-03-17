@@ -23,8 +23,10 @@ Example of the expected output:
 }
 ```
 
-The service should use the data from the 3rd party API (https://data.cityofnewyork.us/Environment/2015-Street-Tree-Census-Tree-Data/uvpi-gqnh): `https://data.cityofnewyork.us/resource/nwxe-4ae8.json`
+## Run Application
 
-If you happen to have any questions, please send an email to your HR contact at Holidu.
+> mvn clean package \
+> java -jar target/holidu_test.jar
 
-Good luck and happy coding!
+## To Run Test Cases 
+> mvn test 
