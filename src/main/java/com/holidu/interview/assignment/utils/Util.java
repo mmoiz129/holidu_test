@@ -1,5 +1,12 @@
 package com.holidu.interview.assignment.utils;
 
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URI;
+import java.util.Map;
+
 public class Util {
 
     /**
@@ -9,11 +16,12 @@ public class Util {
      * @return
      */
     public static double meterToFoot(Double meter) {
-        return meter * 3.281;
+        return meter * 3.28;
     }
 
     /**
      * Check if the point is within the radius bounds
+     *
      * @param x
      * @param y
      * @param maxX
@@ -25,4 +33,5 @@ public class Util {
         double distance = Math.sqrt(Math.pow((maxX - x), 2) + Math.pow((maxY - y), 2));
         return distance <= radius;
     }
+
 }

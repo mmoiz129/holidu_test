@@ -3,11 +3,13 @@ package com.holidu.interview.assignment.services;
 import com.holidu.interview.assignment.exception.HoliduErrorType;
 import com.holidu.interview.assignment.exception.HoliduException;
 import com.holidu.interview.assignment.models.AggregateTreeData;
+import com.holidu.interview.assignment.models.Bounds;
 import com.holidu.interview.assignment.models.TreeData;
 import com.holidu.interview.assignment.utils.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.util.Arrays;
@@ -27,6 +29,7 @@ public class TreeService {
 
     /**
      * Fetch data from API and aggregate it
+     *
      * @param x
      * @param y
      * @param radius
@@ -47,7 +50,8 @@ public class TreeService {
         double radiusInFoot = Util.meterToFoot(radius);
 
         //make where params to filter data
-        String whereParam = createWhereParamsForBounds(x, y, radiusInFoot);
+        Bounds bounds = new Bounds(x, y, radiusInFoot);
+        String whereParam = createWhereParamsForBounds(bounds);
 
         //create URI to fetch data
         URI uri = createURI(SELECT_PARAM, whereParam);
@@ -68,47 +72,49 @@ public class TreeService {
      * @param whereParam
      * @return
      */
-    private URI createURI(String selectParam, String whereParam) {
+    public URI createURI(String selectParam, String whereParam) {
 
-        return UriComponentsBuilder.fromUriString(dataSource)
-                .queryParam("$select", selectParam)
-                .queryParam("$where", whereParam)
-                .build().toUri();
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(dataSource).cloneBuilder();
+
+        if (StringUtils.hasText(selectParam)) {
+            builder.queryParam("$select", selectParam);
+        }
+
+        if (StringUtils.hasText(whereParam)) {
+            builder.queryParam("$select", whereParam);
+        }
+
+        return builder.build().toUri();
     }
 
     /**
      * Aggregate data using steam and map on Hashmap
+     *
      * @param treeData
      * @param x
      * @param y
      * @param radiusInFeet
      * @return
      */
-    private Map<String, Integer> filterAndAggregateTreeData(TreeData[] treeData, Double x, Double y, Double radiusInFeet) {
+    public Map<String, Integer> filterAndAggregateTreeData(TreeData[] treeData, Double x, Double y, Double radiusInFeet) {
         return Arrays.stream(treeData)
                 .filter(t -> t.getSpc_common() != null && Util.withInBounds(x, y, t.getX_sp(), t.getY_sp(), radiusInFeet))
                 .collect(Collectors.toConcurrentMap(w -> w.getSpc_common(), w -> 1, Integer::sum));
     }
 
+
     /**
-     * Create where parameters to search the with in the radius
-     *
-     * @param x
-     * @param y
-     * @param radius
+     * Make where parameter for bounds
+     * @param bounds
      * @return
      */
-    private String createWhereParamsForBounds(Double x, Double y, Double radius) {
-        //Create maximum and minimum bounds
-        double maximumX = x + radius;
-        double minimumX = x - radius;
-        double maximumY = y + radius;
-        double minimumY = y - radius;
+    public String createWhereParamsForBounds(Bounds bounds) {
 
-        return "x_sp <= " + String.valueOf(maximumX) + " AND " +
-                "x_sp >= " + String.valueOf(minimumX) + " AND " +
-                "y_sp <= " + String.valueOf(maximumY) + " AND " +
-                "y_sp >= " + String.valueOf(minimumY);
+        //Create maximum and minimum bounds params
+        return "x_sp <= " + String.valueOf(bounds.getMaxX()) + " AND " +
+                "x_sp >= " + String.valueOf(bounds.getMinX()) + " AND " +
+                "y_sp <= " + String.valueOf(bounds.getMaxY()) + " AND " +
+                "y_sp >= " + String.valueOf(bounds.getMinY());
 
     }
 
